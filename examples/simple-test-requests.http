@@ -1,0 +1,126 @@
+### Simple Mode - Test Requests (No Jira API Required!)
+
+### Health Check
+GET http://localhost:3000/api/simple/health
+
+### Get Categories
+GET http://localhost:3000/api/simple/categories
+
+### Generate DevOps Task
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Настроить мониторинг серверов с помощью Prometheus и Grafana",
+  "category": "DevOps"
+}
+
+### Generate Analytics Task
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Создать дашборд для отслеживания метрик пользовательской активности",
+  "category": "Аналитика"
+}
+
+### Generate Backend Task
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Реализовать REST API для управления пользователями с JWT аутентификацией",
+  "category": "Backend"
+}
+
+### Generate Frontend Task
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Создать адаптивный интерфейс для мобильного приложения",
+  "category": "Frontend"
+}
+
+### Generate Infrastructure Task
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Настроить Kubernetes кластер для продакшн окружения",
+  "category": "Инфраструктура"
+}
+
+### Generate from Jira URL
+POST http://localhost:3000/api/simple/generate-from-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "description": "Дополнительная информация для задачи"
+}
+
+### Generate Multiple Variants
+POST http://localhost:3000/api/simple/generate-variants
+Content-Type: application/json
+
+{
+  "description": "Настроить CI/CD пайплайн для проекта",
+  "category": "DevOps",
+  "count": 3
+}
+
+### Generate 5 Variants for Backend Task
+POST http://localhost:3000/api/simple/generate-variants
+Content-Type: application/json
+
+{
+  "description": "Оптимизировать производительность базы данных",
+  "category": "Backend",
+  "count": 5
+}
+
+### Test Error Handling - Short Description
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Коротко",
+  "category": "DevOps"
+}
+
+### Test Error Handling - Invalid Category
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Тестовая задача с неверной категорией",
+  "category": "InvalidCategory"
+}
+
+### Test Error Handling - Missing Description
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "category": "DevOps"
+}
+
+### Test Error Handling - Invalid URL
+POST http://localhost:3000/api/simple/generate-from-url
+Content-Type: application/json
+
+{
+  "url": "https://invalid-url.com"
+}
+
+### Test Error Handling - Too Many Variants
+POST http://localhost:3000/api/simple/generate-variants
+Content-Type: application/json
+
+{
+  "description": "Тестовая задача",
+  "category": "DevOps",
+  "count": 10
+}
+

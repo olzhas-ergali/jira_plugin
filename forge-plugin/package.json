@@ -1,0 +1,20 @@
+{
+  "name": "jira-openai-automation-forge",
+  "version": "1.0.0",
+  "description": "Jira OpenAI Automation Forge Plugin",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "forge build",
+    "deploy": "forge deploy",
+    "install": "forge install",
+    "lint": "forge lint",
+    "tunnel": "forge tunnel"
+  },
+  "dependencies": {
+    "@forge/api": "^2.7.0",
+    "@forge/ui": "^1.0.0"
+  },
+  "devDependencies": {
+    "@forge/cli": "^2.7.0"
+  }
+}

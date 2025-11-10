@@ -1,0 +1,158 @@
+### Jira URL Functions - Test Requests
+
+### Analyze Jira URL
+POST http://localhost:3000/api/jira/analyze-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123"
+}
+
+### Create Task from Jira URL (with AI)
+POST http://localhost:3000/api/jira/create-from-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "assignee": "user@example.com",
+  "additionalInfo": "Дополнительная информация для новой задачи",
+  "useAI": true
+}
+
+### Create Task from Jira URL (without AI)
+POST http://localhost:3000/api/jira/create-from-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "assignee": "user@example.com",
+  "additionalInfo": "Простая задача без AI",
+  "useAI": false
+}
+
+### Clone Task
+POST http://localhost:3000/api/jira/clone-task
+Content-Type: application/json
+
+{
+  "sourceUrl": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "targetProject": "NEWPROJ",
+  "targetIssueType": "Task",
+  "assignee": "user@example.com",
+  "additionalInfo": "Клонированная задача с дополнительной информацией"
+}
+
+### Get Issue Info
+GET http://localhost:3000/api/jira/issue/PROJ-123
+
+### Get Project Info
+GET http://localhost:3000/api/jira/project/PROJ
+
+### Analyze URL with Rapid View
+POST http://localhost:3000/api/jira/analyze-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ"
+}
+
+### Create Task from URL with Custom Category
+POST http://localhost:3000/api/jira/create-from-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "assignee": "user@example.com",
+  "additionalInfo": "DevOps задача на основе существующей",
+  "useAI": true
+}
+
+### Clone Task to Different Project
+POST http://localhost:3000/api/jira/clone-task
+Content-Type: application/json
+
+{
+  "sourceUrl": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "targetProject": "DEVOPS",
+  "targetIssueType": "Story",
+  "assignee": "user@example.com",
+  "additionalInfo": "Клонирование в DevOps проект"
+}
+
+### Test Error Handling - Invalid URL
+POST http://localhost:3000/api/jira/analyze-url
+Content-Type: application/json
+
+{
+  "url": "https://invalid-jira-url.com/issue/INVALID-123"
+}
+
+### Test Error Handling - Missing URL
+POST http://localhost:3000/api/jira/analyze-url
+Content-Type: application/json
+
+{
+  "url": ""
+}
+
+### Test Error Handling - Non-Jira URL
+POST http://localhost:3000/api/jira/analyze-url
+Content-Type: application/json
+
+{
+  "url": "https://google.com"
+}
+
+### Create Task from URL with Priority Override
+POST http://localhost:3000/api/jira/create-from-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "assignee": "user@example.com",
+  "additionalInfo": "Высокоприоритетная задача",
+  "useAI": true
+}
+
+### Clone Task with Custom Labels
+POST http://localhost:3000/api/jira/clone-task
+Content-Type: application/json
+
+{
+  "sourceUrl": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "targetProject": "LABELS",
+  "targetIssueType": "Task",
+  "assignee": "user@example.com",
+  "additionalInfo": "Задача с кастомными лейблами"
+}
+
+### Analyze URL with Project Key Only
+POST http://localhost:3000/api/jira/analyze-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ"
+}
+
+### Create Task from URL with Specific Category
+POST http://localhost:3000/api/jira/create-from-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "assignee": "user@example.com",
+  "additionalInfo": "Аналитическая задача на основе существующей",
+  "useAI": true
+}
+
+### Clone Task with Different Issue Type
+POST http://localhost:3000/api/jira/clone-task
+Content-Type: application/json
+
+{
+  "sourceUrl": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "targetProject": "EPIC",
+  "targetIssueType": "Epic",
+  "assignee": "user@example.com",
+  "additionalInfo": "Клонирование как Epic"
+}

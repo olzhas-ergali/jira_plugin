@@ -1,0 +1,61 @@
+{
+  "categories": {
+    "DevOps": {
+      "name": "DevOps",
+      "priority": "Medium",
+      "labels": ["devops", "infrastructure"],
+      "assignee_rule": "devops-team",
+      "template": {
+        "title": "[DevOps] {{task_summary}}",
+        "description": "🎯 **Цель:** {{goal}}\n\n📌 **Что нужно сделать:**\n\n{{tasks}}\n\n✅ **Критерии готовности:**\n\n{{acceptance_criteria}}\n\n🏷️ **Приоритет:** {{priority}}\n\n👥 **Исполнитель:** {{assignee}}"
+      }
+    },
+    "Аналитика": {
+      "name": "Аналитика",
+      "priority": "High",
+      "labels": ["analytics", "data"],
+      "assignee_rule": "analytics-team",
+      "template": {
+        "title": "[Аналитика] {{task_summary}}",
+        "description": "🎯 **Цель:** {{goal}}\n\n📌 **Что нужно сделать:**\n\n{{tasks}}\n\n✅ **Критерии готовности:**\n\n{{acceptance_criteria}}\n\n📊 **Метрики для отслеживания:**\n\n{{metrics}}\n\n🏷️ **Приоритет:** {{priority}}\n\n👥 **Исполнитель:** {{assignee}}"
+      }
+    },
+    "Backend": {
+      "name": "Backend",
+      "priority": "Medium",
+      "labels": ["backend", "development"],
+      "assignee_rule": "backend-team",
+      "template": {
+        "title": "[Backend] {{task_summary}}",
+        "description": "🎯 **Цель:** {{goal}}\n\n📌 **Что нужно сделать:**\n\n{{tasks}}\n\n✅ **Критерии готовности:**\n\n{{acceptance_criteria}}\n\n🔧 **Технические требования:**\n\n{{technical_requirements}}\n\n🏷️ **Приоритет:** {{priority}}\n\n👥 **Исполнитель:** {{assignee}}"
+      }
+    },
+    "Инфраструктура": {
+      "name": "Инфраструктура",
+      "priority": "High",
+      "labels": ["infrastructure", "system"],
+      "assignee_rule": "infrastructure-team",
+      "template": {
+        "title": "[Инфраструктура] {{task_summary}}",
+        "description": "🎯 **Цель:** {{goal}}\n\n📌 **Что нужно сделать:**\n\n{{tasks}}\n\n✅ **Критерии готовности:**\n\n{{acceptance_criteria}}\n\n🛠️ **Инфраструктурные требования:**\n\n{{infrastructure_requirements}}\n\n🏷️ **Приоритет:** {{priority}}\n\n👥 **Исполнитель:** {{assignee}}"
+      }
+    },
+    "Frontend": {
+      "name": "Frontend",
+      "priority": "Medium",
+      "labels": ["frontend", "ui", "ux"],
+      "assignee_rule": "frontend-team",
+      "template": {
+        "title": "[Frontend] {{task_summary}}",
+        "description": "🎯 **Цель:** {{goal}}\n\n📌 **Что нужно сделать:**\n\n{{tasks}}\n\n✅ **Критерии готовности:**\n\n{{acceptance_criteria}}\n\n🎨 **UI/UX требования:**\n\n{{ui_requirements}}\n\n🏷️ **Приоритет:** {{priority}}\n\n👥 **Исполнитель:** {{assignee}}"
+      }
+    }
+  },
+  "default_assignees": {
+    "devops-team": "user@example.com",
+    "analytics-team": "user@example.com",
+    "backend-team": "user@example.com",
+    "infrastructure-team": "user@example.com",
+    "frontend-team": "user@example.com"
+  }
+}

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jira Task Generator</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Jira Task Generator</h1>
+            <p>AI-powered task generation</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="generate">Generate</button>
+            <button class="tab" data-tab="analyze">Analysis</button>
+            <button class="tab" data-tab="settings">Settings</button>
+        </div>
+
+        <!-- Генерация задач -->
+        <div id="generate" class="tab-content active">
+            <div class="form-group">
+                <label for="description">Task description:</label>
+                <textarea id="description" placeholder="Describe what needs to be done..." rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select id="category">
+                    <option value="">Select category</option>
+                    <option value="Backend">Backend</option>
+                    <option value="Frontend">Frontend</option>
+                    <option value="DevOps">DevOps</option>
+                    <option value="Analytics">Analytics</option>
+                    <option value="Infrastructure">Infrastructure</option>
+                </select>
+            </div>
+
+            <button id="generateBtn" class="btn primary">
+                <span class="btn-text">Generate Task</span>
+                <span class="loading" style="display: none;">Loading...</span>
+            </button>
+
+            <div id="result" class="result" style="display: none;">
+                <h3>Result:</h3>
+                <div class="result-content">
+                    <div class="field">
+                        <label>Title:</label>
+                        <div class="copy-field">
+                            <input type="text" id="title" readonly>
+                            <button class="copy-btn" data-copy="title">Copy</button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Description:</label>
+                        <div class="copy-field">
+                            <textarea id="description-result" readonly rows="4"></textarea>
+                            <button class="copy-btn" data-copy="description-result">Copy</button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Labels:</label>
+                        <div class="copy-field">
+                            <input type="text" id="labels" readonly>
+                            <button class="copy-btn" data-copy="labels">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="analyze" class="tab-content">
+            <div class="info">
+                <p>Page Analysis</p>
+                <p>Get statistics and recommendations</p>
+            </div>
+
+            <button id="analyzeBtn" class="btn secondary">
+                <span class="btn-text">Analyze Page</span>
+                <span class="loading" style="display: none;">Loading...</span>
+            </button>
+
+            <div id="analyzeResult" class="result" style="display: none;">
+                <h3>Analysis:</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Project:</span>
+                        <span class="stat-value" id="projectName">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Tasks on page:</span>
+                        <span class="stat-value" id="taskCount">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Statuses:</span>
+                        <span class="stat-value" id="statuses">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #e0e0e0;">
+
+            <div class="info">
+                <p>Full Project Analysis</p>
+                <p>Scan ALL project tasks for context-aware generation</p>
+            </div>
+
+            <button id="fullAnalysisBtn" class="btn primary">
+                <span class="btn-text">Full Project Analysis</span>
+                <span class="loading" style="display: none;">Analyzing...</span>
+            </button>
+
+            <div id="analysisStatus" class="status-message" style="display: none; margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; font-size: 12px;">
+            </div>
+
+            <div id="fullAnalysisResult" class="result" style="display: none;">
+                <h3>Project Analysis:</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Project:</span>
+                        <span class="stat-value" id="fullProjectKey">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Total issues:</span>
+                        <span class="stat-value" id="fullTotalIssues">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Categories:</span>
+                        <span class="stat-value" id="fullCategories">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Top labels:</span>
+                        <span class="stat-value" id="fullTopLabels">-</span>
+                    </div>
+                </div>
+
+                <h4>Common Terms:</h4>
+                <div id="fullCommonTerms" style="font-size: 12px; padding: 10px; background: #f9f9f9; border-radius: 5px;">
+                </div>
+
+                <h4>Best Examples:</h4>
+                <div id="fullBestExamples" style="font-size: 12px;">
+                </div>
+
+                <button id="generateWithContextBtn" class="btn primary" style="margin-top: 15px;">
+                    Generate Task with Context
+                </button>
+            </div>
+        </div>
+
+        <!-- Настройки -->
+        <div id="settings" class="tab-content">
+            <div class="form-group">
+                <label for="openaiKey">OpenAI API Key:</label>
+                <input type="password" id="openaiKey" placeholder="sk-...">
+                <small>Get your key at platform.openai.com</small>
+            </div>
+
+            <div class="form-group">
+                <label for="jiraUrl">Jira URL:</label>
+                <input type="text" id="jiraUrl" placeholder="https://your-jira.atlassian.net">
+            </div>
+
+            <button id="saveSettings" class="btn primary">Save Settings</button>
+            
+            <div class="status" id="settingsStatus" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

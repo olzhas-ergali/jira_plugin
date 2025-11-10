@@ -1,0 +1,91 @@
+### Jira OpenAI Automation Service - Test Requests
+
+### Health Check
+GET http://localhost:3000/api/health
+
+### Get Categories
+GET http://localhost:3000/api/categories
+
+### Get Project Info
+GET http://localhost:3000/api/project-info
+
+### Create DevOps Task
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Настроить мониторинг серверов с помощью Prometheus и Grafana",
+  "category": "DevOps"
+}
+
+### Create Analytics Task
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Создать дашборд для отслеживания метрик пользовательской активности",
+  "category": "Аналитика"
+}
+
+### Create Backend Task
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Реализовать REST API для управления пользователями с аутентификацией",
+  "category": "Backend"
+}
+
+### Create Frontend Task
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Создать адаптивный интерфейс для мобильного приложения",
+  "category": "Frontend"
+}
+
+### Create Infrastructure Task
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Настроить Kubernetes кластер для продакшн окружения",
+  "category": "Инфраструктура"
+}
+
+### Create Task with Custom Assignee
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Оптимизировать производительность базы данных",
+  "category": "Backend",
+  "assignee": "dba@company.com"
+}
+
+### Test Error Handling - Invalid Category
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Тестовая задача",
+  "category": "InvalidCategory"
+}
+
+### Test Error Handling - Missing Description
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "category": "DevOps"
+}
+
+### Test Error Handling - Short Description
+POST http://localhost:3000/api/create-task
+Content-Type: application/json
+
+{
+  "description": "Коротко",
+  "category": "DevOps"
+}

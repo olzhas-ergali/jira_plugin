@@ -1,0 +1,156 @@
+### Jira OpenAI Automation - Browser Plugin Test Requests
+### Запустите сервер: npm run simple-dev
+### Откройте браузер: http://localhost:3000
+
+### 1. Проверка статуса сервера
+GET http://localhost:3000/api/simple/health
+
+### 2. Получение главной страницы (веб-интерфейс)
+GET http://localhost:3000/
+
+### 3. Генерация простой задачи
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Добавить авторизацию пользователей через Google OAuth",
+  "category": "Backend"
+}
+
+### 4. Генерация задачи из Jira URL
+POST http://localhost:3000/api/simple/generate-from-url
+Content-Type: application/json
+
+{
+  "url": "https://your-jira.atlassian.net/browse/PROJ-123",
+  "category": "Backend"
+}
+
+### 5. Генерация нескольких вариантов
+POST http://localhost:3000/api/simple/generate-variants
+Content-Type: application/json
+
+{
+  "description": "Создать API для интеграции с внешним сервисом",
+  "category": "Backend",
+  "count": 3
+}
+
+### 6. Получение доступных категорий
+GET http://localhost:3000/api/simple/categories
+
+### 7. Парсинг исторических задач
+POST http://localhost:3000/api/historical/parse
+Content-Type: application/json
+
+{
+  "projectKey": "PROJ",
+  "maxResults": 50
+}
+
+### 8. Анализ паттернов в исторических задачах
+POST http://localhost:3000/api/historical/analyze-patterns
+Content-Type: application/json
+
+{
+  "projectKey": "PROJ",
+  "maxResults": 100
+}
+
+### 9. Создание задачи на основе исторических данных
+POST http://localhost:3000/api/historical/create-from-history
+Content-Type: application/json
+
+{
+  "description": "Создать API для интеграции с внешним сервисом",
+  "category": "Backend",
+  "projectKey": "PROJ",
+  "useHistoricalData": true,
+  "maxHistoricalTasks": 20
+}
+
+### 10. Получение статистики проекта
+GET http://localhost:3000/api/historical/stats/PROJ
+
+### 11. Тест с разными категориями
+
+### Backend задача
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Оптимизировать производительность базы данных",
+  "category": "Backend"
+}
+
+### Frontend задача
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Добавить темную тему в интерфейс",
+  "category": "Frontend"
+}
+
+### DevOps задача
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Настроить автоматическое развертывание в Docker",
+  "category": "DevOps"
+}
+
+### Аналитическая задача
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Проанализировать метрики использования приложения",
+  "category": "Аналитика"
+}
+
+### Инфраструктурная задача
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Настроить мониторинг серверов",
+  "category": "Инфраструктура"
+}
+
+### 12. Тест с длинным описанием
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Создать комплексную систему уведомлений для пользователей, включающую email, SMS, push-уведомления и интеграцию с внешними сервисами. Система должна поддерживать шаблоны, планировщик, очереди и аналитику доставки.",
+  "category": "Backend"
+}
+
+### 13. Тест с коротким описанием
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Исправить баг",
+  "category": "Backend"
+}
+
+### 14. Тест с пустым описанием (должен вернуть ошибку)
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "",
+  "category": "Backend"
+}
+
+### 15. Тест с неверной категорией (должен вернуть ошибку)
+POST http://localhost:3000/api/simple/generate
+Content-Type: application/json
+
+{
+  "description": "Тестовая задача",
+  "category": "НевернаяКатегория"
+}

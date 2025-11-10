@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Jira OpenAI Extension</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .features {
+            text-align: left;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .feature-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .steps {
+            text-align: left;
+            margin: 30px 0;
+        }
+        
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Jira OpenAI Extension!</h1>
+        <p>Automatic Jira task generation powered by AI</p>
+        
+        <div class="features">
+            <h3>Features:</h3>
+            <div class="feature">
+                <span>AI-powered task generation with OpenAI GPT</span>
+            </div>
+            <div class="feature">
+                <span>Jira page analysis</span>
+            </div>
+            <div class="feature">
+                <span>Full project scanning</span>
+            </div>
+            <div class="feature">
+                <span>Context-aware task creation</span>
+            </div>
+        </div>
+        
+        <div class="steps">
+            <h3>Setup:</h3>
+            <div class="step">
+                <strong>1. Get OpenAI API key</strong><br>
+                Go to <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a>
+            </div>
+            <div class="step">
+                <strong>2. Configure extension</strong><br>
+                Open extension and enter your API key
+            </div>
+            <div class="step">
+                <strong>3. Start using</strong><br>
+                Go to Jira page and click extension icon
+            </div>
+        </div>
+        
+        <button class="btn" onclick="openExtension()">Open Settings</button>
+        <button class="btn" onclick="closeWelcome()">Got it</button>
+    </div>
+    
+    <script>
+        function openExtension() {
+            chrome.runtime.openOptionsPage();
+        }
+        
+        function closeWelcome() {
+            window.close();
+        }
+    </script>
+</body>
+</html>

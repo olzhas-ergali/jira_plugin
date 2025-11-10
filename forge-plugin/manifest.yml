@@ -1,0 +1,24 @@
+modules:
+  - key: jira-openai-automation
+    function:
+      - key: main
+        handler: src/index.js
+        runtime: nodejs18.x
+    triggers:
+      - key: jira-issue-created
+        events:
+          - jira:issue_created
+    permissions:
+      - scopes:
+          - read:jira-work
+          - write:jira-work
+          - read:jira-user
+      - external:
+          - key: openai-api
+            url: https://api.openai.com
+    resources:
+      - key: automation-ui
+        path: static/automation.html
+    storage:
+      - key: templates
+        type: object
