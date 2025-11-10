@@ -22,8 +22,7 @@
         "https://*.atlassian.net/*",
         "https://*.jira.com/*"
       ],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "js": ["content.js"]
     }
   ],
   "action": {
@@ -35,10 +34,4 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["inject.js"],
-      "matches": ["https://*.atlassian.net/*", "https://*.jira.com/*"]
-    }
-  ]
 }
