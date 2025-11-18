@@ -11,7 +11,6 @@ class TaskController {
    */
   async createTask(req, res) {
     try {
-      // Валидация входных данных
       const schema = Joi.object({
         description: Joi.string().min(10).max(500).required(),
         category: Joi.string().valid(...Object.keys(templates.categories)).required(),
@@ -29,7 +28,6 @@ class TaskController {
 
       const { description, category, assignee } = value;
 
-      // Получаем шаблон для категории
       const categoryTemplate = templates.categories[category];
       if (!categoryTemplate) {
         return res.status(400).json({
@@ -41,7 +39,6 @@ class TaskController {
 
       console.log(`🤖 Генерация контента для задачи категории "${category}"...`);
       
-      // Генерируем контент с помощью OpenAI
       const generatedContent = await openaiService.generateTaskContent(
         description, 
         category, 
@@ -50,13 +47,11 @@ class TaskController {
 
       console.log('✅ Контент сгенерирован успешно');
 
-      // Форматируем контент по шаблону
       const formattedContent = openaiService.formatContentByTemplate(
         generatedContent, 
         categoryTemplate.template
       );
 
-      // Подготавливаем данные для Jira
       const taskData = {
         title: formattedContent.title,
         description: formattedContent.description,
@@ -67,7 +62,6 @@ class TaskController {
 
       console.log(`📝 Создание задачи в Jira: ${taskData.title}`);
 
-      // Создаем задачу в Jira
       const jiraResult = await jiraService.createIssue(taskData);
 
       console.log(`✅ Задача создана: ${jiraResult.issueKey}`);
@@ -137,14 +131,12 @@ class TaskController {
         openai: false
       };
 
-      // Проверяем подключение к Jira
       try {
         checks.jira = await jiraService.testConnection();
       } catch (error) {
         console.error('Jira connection check failed:', error.message);
       }
 
-      // Проверяем OpenAI (простой тест)
       try {
         checks.openai = !!process.env.OPENAI_API_KEY;
       } catch (error) {

@@ -71,7 +71,6 @@ class JiraUrlController {
       const { url, targetProject, assignee, additionalInfo, useAI } = value;
       console.log(`🔄 Создание задачи из URL: ${url}`);
 
-      // Анализируем исходный URL
       const analysis = await jiraUrlParser.analyzeJiraUrl(url);
       
       if (!analysis.issueInfo) {
@@ -84,14 +83,12 @@ class JiraUrlController {
 
       const sourceIssue = analysis.issueInfo;
       
-      // Определяем категорию
       const category = jiraUrlParser.determineCategory(sourceIssue);
       console.log(`📋 Определена категория: ${category}`);
 
       let taskData;
       
       if (useAI) {
-        // Используем AI для генерации контента
         const aiDescription = `Создать задачу на основе: ${sourceIssue.summary}. ${additionalInfo || ''}`;
         
         const generatedContent = await openaiService.generateTaskContent(
@@ -113,7 +110,6 @@ class JiraUrlController {
           assignee: assignee || templates.default_assignees[templates.categories[category].assignee_rule]
         };
       } else {
-        // Создаем задачу без AI
         const description = jiraUrlParser.createDescriptionFromIssue(sourceIssue, { additionalInfo });
         
         taskData = {
@@ -125,7 +121,6 @@ class JiraUrlController {
         };
       }
 
-      // Создаем задачу в Jira
       console.log(`📝 Создание задачи: ${taskData.title}`);
       const jiraResult = await jiraService.createIssue(taskData);
 
@@ -256,7 +251,6 @@ class JiraUrlController {
       const { sourceUrl, targetProject, targetIssueType, assignee, additionalInfo } = value;
       console.log(`🔄 Клонирование задачи из ${sourceUrl} в проект ${targetProject}`);
 
-      // Анализируем исходную задачу
       const analysis = await jiraUrlParser.analyzeJiraUrl(sourceUrl);
       
       if (!analysis.issueInfo) {
@@ -269,7 +263,6 @@ class JiraUrlController {
       const sourceIssue = analysis.issueInfo;
       const category = jiraUrlParser.determineCategory(sourceIssue);
       
-      // Создаем описание для клонированной задачи
       const description = jiraUrlParser.createDescriptionFromIssue(sourceIssue, { additionalInfo });
       
       const taskData = {
@@ -280,7 +273,6 @@ class JiraUrlController {
         assignee: assignee || jiraUrlParser.getDefaultAssignee(category)
       };
 
-      // Создаем задачу в целевом проекте
       const jiraResult = await jiraService.createIssue(taskData);
 
       res.status(201).json({

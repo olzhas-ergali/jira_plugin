@@ -102,7 +102,6 @@ class OpenAIService {
    */
   parseGeneratedContent(content) {
     try {
-      // Извлекаем JSON из ответа
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         throw new Error('Не удалось найти JSON в ответе OpenAI');
@@ -110,7 +109,6 @@ class OpenAIService {
 
       const parsed = JSON.parse(jsonMatch[0]);
       
-      // Валидация обязательных полей
       const requiredFields = ['task_summary', 'goal', 'tasks', 'acceptance_criteria'];
       const missingFields = requiredFields.filter(field => !parsed[field]);
       
@@ -138,10 +136,8 @@ class OpenAIService {
       description: template.description
     };
 
-    // Заменяем плейсхолдеры в заголовке
     formattedContent.title = formattedContent.title.replace('{{task_summary}}', content.task_summary);
 
-    // Заменяем плейсхолдеры в описании
     let description = formattedContent.description;
     description = description.replace('{{goal}}', content.goal);
     description = description.replace('{{tasks}}', content.tasks.map(task => `- ${task}`).join('\n'));
@@ -149,7 +145,6 @@ class OpenAIService {
     description = description.replace('{{priority}}', content.priority || 'Medium');
     description = description.replace('{{assignee}}', 'Автоматическое назначение');
 
-    // Добавляем специфичные для категории поля
     if (content.technical_requirements) {
       description = description.replace('{{technical_requirements}}', content.technical_requirements);
     }

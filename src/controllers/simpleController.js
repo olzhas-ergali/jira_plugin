@@ -259,7 +259,6 @@ class SimpleController {
         openai: false
       };
 
-      // Проверяем OpenAI (простой тест)
       try {
         checks.openai = !!process.env.OPENAI_API_KEY;
       } catch (error) {

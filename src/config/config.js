@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 const config = {
-  // Jira Configuration
   jira: {
     baseUrl: process.env.JIRA_BASE_URL,
     username: process.env.JIRA_USERNAME,
@@ -10,7 +9,6 @@ const config = {
     issueType: process.env.JIRA_ISSUE_TYPE || 'Task'
   },
 
-  // OpenAI Configuration
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
     model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
@@ -18,20 +16,17 @@ const config = {
     temperature: 0.7
   },
 
-  // Server Configuration
   server: {
     port: process.env.PORT || 3000,
     nodeEnv: process.env.NODE_ENV || 'development'
   },
 
-  // Rate Limiting
   rateLimit: {
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
     maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100
   }
 };
 
-// Validation
 const requiredEnvVars = [
   'JIRA_BASE_URL',
   'JIRA_USERNAME',

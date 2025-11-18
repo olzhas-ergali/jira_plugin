@@ -1,19 +1,34 @@
-// Content Script for Jira pages
 class JiraPageAnalyzer {
     constructor() {
+        console.log('Jira Page Analyzer initializing...');
         this.init();
     }
 
     init() {
+        console.log('Setting up message listeners...');
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+            console.log('Content script received message:', request.action);
+            
             if (request.action === 'analyzePage') {
-                const analysis = this.analyzeCurrentPage();
-                sendResponse(analysis);
+                try {
+                    const analysis = this.analyzeCurrentPage();
+                    sendResponse(analysis);
+                } catch (error) {
+                    console.error('Error in analyzePage:', error);
+                    sendResponse({ error: error.message });
+                }
+                return true;
             }
             else if (request.action === 'scanAllProjectIssues') {
                 this.scanAllProjectIssues()
-                    .then(result => sendResponse(result))
-                    .catch(error => sendResponse({ error: error.message }));
+                    .then(result => {
+                        console.log('Scan result:', result);
+                        sendResponse(result);
+                    })
+                    .catch(error => {
+                        console.error('Scan error:', error);
+                        sendResponse({ error: error.message });
+                    });
                 return true;
             }
             else if (request.action === 'sendToBackendForAnalysis') {
@@ -21,13 +36,40 @@ class JiraPageAnalyzer {
                     request.data.issueKeys,
                     request.data.projectKey
                 )
-                    .then(result => sendResponse(result))
-                    .catch(error => sendResponse({ error: error.message }));
+                    .then(result => {
+                        console.log('Backend analysis result:', result);
+                        sendResponse(result);
+                    })
+                    .catch(error => {
+                        console.error('Backend analysis error:', error);
+                        sendResponse({ error: error.message });
+                    });
                 return true;
+            }
+            else if (request.action === 'injectIntoJiraForm') {
+                try {
+                    this.injectIntoJiraForm(
+                        request.data.title,
+                        request.data.description,
+                        request.data.labels,
+                        request.data.priority
+                    );
+                    sendResponse({ success: true });
+                } catch (error) {
+                    console.error('Inject error:', error);
+                    sendResponse({ error: error.message });
+                }
+                return true;
+            }
+            else {
+                console.warn('Unknown action:', request.action);
+                sendResponse({ error: 'Unknown action' });
+                return false;
             }
         });
 
         this.addExtensionButton();
+        console.log('Jira Page Analyzer ready!');
     }
 
     analyzeCurrentPage() {
@@ -178,30 +220,109 @@ class JiraPageAnalyzer {
     }
 
     getProjectKey() {
-        const urlMatch = window.location.href.match(/projectKey=([A-Z]+)|\/browse\/([A-Z]+)/);
-        if (urlMatch) {
-            return urlMatch[1] || urlMatch[2];
-        }
-        const issueKeyMatch = window.location.href.match(/([A-Z]+)-\d+/);
-        if (issueKeyMatch) {
-            return issueKeyMatch[1];
-        }
-        const projectElement = document.querySelector('[data-testid="project-key"], .project-key');
-        if (projectElement) {
-            return projectElement.textContent.trim();
-        }
-        const firstIssue = document.querySelector('[data-issue-key]');
-        if (firstIssue) {
-            const key = firstIssue.getAttribute('data-issue-key');
-            const match = key.match(/^([A-Z]+)-\d+$/);
-            if (match) return match[1];
+        console.log('Extracting project key from:', window.location.href);
+        
+        const urlPatterns = [
+            /projectKey=([A-Z]+)/i,
+            /\/browse\/([A-Z]+)/i,
+            /\/projects\/([A-Z]+)/i,
+            /\/secure\/RapidBoard\.jspa\?projectKey=([A-Z]+)/i,
+            /\/jira\/software\/projects\/([A-Z]+)/i,
+            /\/browse\/([A-Z]+)-\d+/i,
+            /projectKey=([A-Z]+)/i
+        ];
+
+        for (const pattern of urlPatterns) {
+            const match = window.location.href.match(pattern);
+            if (match && match[1]) {
+                const key = match[1].toUpperCase();
+                if (key.match(/^[A-Z]+$/)) {
+                    console.log('Found project key from URL:', key);
+                    return key;
+                }
+            }
         }
         
+        const issueKeyMatch = window.location.href.match(/([A-Z]+)-\d+/i);
+        if (issueKeyMatch && issueKeyMatch[1]) {
+            const key = issueKeyMatch[1].toUpperCase();
+            console.log('Found project key from issue in URL:', key);
+            return key;
+        }
+        
+        const projectSelectors = [
+            '[data-testid="project-key"]',
+            '[data-project-key]',
+            '.project-key',
+            '[data-testid="project-selector"]',
+            'meta[name="ajs-project-key"]',
+            '[data-project-id]',
+            '.project-selector',
+            '[aria-label*="project" i]'
+        ];
+
+        for (const selector of projectSelectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+                let key = element.getAttribute('data-project-key') || 
+                         element.getAttribute('data-project-id') ||
+                         element.getAttribute('content') ||
+                         element.textContent.trim();
+                if (key) {
+                    const match = key.match(/([A-Z]+)/i);
+                    if (match) {
+                        const projectKey = match[1].toUpperCase();
+                        if (projectKey.match(/^[A-Z]+$/)) {
+                            console.log('Found project key from DOM:', projectKey);
+                            return projectKey;
+                        }
+                    }
+                }
+            }
+        }
+        
+        const issueSelectors = [
+            '[data-issue-key]',
+            'a[href*="/browse/"]',
+            '.issue-key',
+            '[data-testid="issue-key"]'
+        ];
+
+        for (const selector of issueSelectors) {
+            const firstIssue = document.querySelector(selector);
+            if (firstIssue) {
+                let key = firstIssue.getAttribute('data-issue-key');
+                if (!key) {
+                    const href = firstIssue.getAttribute('href');
+                    if (href) {
+                        const match = href.match(/([A-Z]+)-\d+/i);
+                        if (match) key = match[1];
+                    }
+                }
+                if (!key) {
+                    const text = firstIssue.textContent;
+                    const match = text.match(/([A-Z]+)-\d+/i);
+                    if (match) key = match[1];
+                }
+                if (key) {
+                    const match = key.match(/^([A-Z]+)/i);
+                    if (match) {
+                        const projectKey = match[1].toUpperCase();
+                        if (projectKey.match(/^[A-Z]+$/)) {
+                            console.log('Found project key from issue:', projectKey);
+                            return projectKey;
+                        }
+                    }
+                }
+            }
+        }
+        
+        console.warn('Could not determine project key');
         return null;
     }
 
     async sendToBackendForAnalysis(issueKeys, projectKey) {
-        console.log('Sending data to backend...');
+        console.log('Sending data to backend...', { projectKey, issueCount: issueKeys.length });
         
         const backendUrl = 'http://localhost:3000/api/project/full-analysis';
         
@@ -220,16 +341,25 @@ class JiraPageAnalyzer {
             });
             
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Backend error: ${response.status}`);
+                let errorMessage = `Backend error: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorData.error || errorMessage;
+                } catch (e) {
+                    errorMessage = response.statusText || errorMessage;
+                }
+                throw new Error(errorMessage);
             }
             
             const result = await response.json();
             console.log('Backend response:', result);
-            
-            return result;
+            return result.data || result;
         } catch (error) {
             console.error('Error sending to backend:', error);
+            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                throw new Error('Backend server is not running. Please start the server with: npm run dev');
+            }
+            
             throw error;
         }
     }
@@ -239,23 +369,34 @@ class JiraPageAnalyzer {
     }
 
     getProjectName() {
+        const urlMatch = window.location.href.match(/projectKey=([A-Z]+)|\/browse\/([A-Z]+)|\/projects\/([A-Z]+)/);
+        if (urlMatch) {
+            return urlMatch[1] || urlMatch[2] || urlMatch[3];
+        }
+
         const projectSelectors = [
             '[data-testid="project-name"]',
             '.project-name',
+            '[data-project-key]',
             '[data-testid="project-selector"]',
-            '.project-selector'
+            '.project-selector',
+            'meta[name="ajs-project-key"]'
         ];
 
         for (const selector of projectSelectors) {
             const element = document.querySelector(selector);
-            if (element && element.textContent.trim()) {
-                return element.textContent.trim();
+            if (element) {
+                const key = element.getAttribute('data-project-key') || 
+                           element.getAttribute('content') ||
+                           element.textContent.trim();
+                if (key) return key;
             }
         }
 
-        const urlMatch = window.location.href.match(/projectKey=([A-Z]+)/);
-        if (urlMatch) {
-            return urlMatch[1];
+        const issueKey = this.extractIssueKey(document.body);
+        if (issueKey) {
+            const match = issueKey.match(/^([A-Z]+)-/);
+            if (match) return match[1];
         }
 
         return 'Unknown';
@@ -263,34 +404,56 @@ class JiraPageAnalyzer {
 
     getTaskCount() {
         const taskSelectors = [
+            '[data-issue-key]',
             '[data-testid="issue-row"]',
             '.issue-row',
             '[data-testid="issue-card"]',
             '.issue-card',
-            'tr[data-issue-key]'
+            'tr[data-issue-key]',
+            '.ghx-issue',
+            '[data-test-id*="issue"]',
+            'a[href*="/browse/"]'
         ];
 
-        let count = 0;
+        const foundKeys = new Set();
+        
         for (const selector of taskSelectors) {
             const elements = document.querySelectorAll(selector);
-            count += elements.length;
+            elements.forEach(el => {
+                const key = this.extractIssueKey(el);
+                if (key) foundKeys.add(key);
+            });
         }
 
-        return count;
+        return foundKeys.size;
     }
 
     getStatuses() {
-        const statusElements = document.querySelectorAll('[data-testid="status"], .status, .issue-status');
+        const statusSelectors = [
+            '[data-testid="status"]',
+            '.status',
+            '.issue-status',
+            '[data-status]',
+            '.ghx-status',
+            'span[class*="status"]',
+            'span[title*="Status"]'
+        ];
+        
         const statuses = new Set();
 
-        statusElements.forEach(element => {
-            const status = element.textContent.trim();
-            if (status) {
-                statuses.add(status);
-            }
+        statusSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                const status = element.getAttribute('data-status') || 
+                              element.getAttribute('title') ||
+                              element.textContent.trim();
+                if (status && status.length > 0 && status.length < 50) {
+                    statuses.add(status);
+                }
+            });
         });
 
-        return Array.from(statuses).join(', ') || 'Unknown';
+        return Array.from(statuses).slice(0, 10).join(', ') || 'Unknown';
     }
 
     addExtensionButton() {
@@ -306,24 +469,24 @@ class JiraPageAnalyzer {
             top: 20px;
             right: 20px;
             z-index: 10000;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000;
             color: white;
             padding: 10px 15px;
-            border-radius: 25px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
             user-select: none;
         `;
 
         button.addEventListener('mouseenter', () => {
-            button.style.transform = 'scale(1.05)';
+            button.style.background = '#333';
         });
 
         button.addEventListener('mouseleave', () => {
-            button.style.transform = 'scale(1)';
+            button.style.background = '#000';
         });
 
         button.addEventListener('click', () => {
@@ -337,27 +500,132 @@ class JiraPageAnalyzer {
         chrome.runtime.sendMessage({ action: 'openPopup' });
     }
 
-    injectIntoJiraForm(title, description, labels) {
-        const titleField = document.querySelector('#summary, [name="summary"], [data-testid="summary"]');
-        const descriptionField = document.querySelector('#description, [name="description"], [data-testid="description"]');
-        const labelsField = document.querySelector('#labels, [name="labels"], [data-testid="labels"]');
+    injectIntoJiraForm(title, description, labels, priority) {
+        if (!title || !title.trim()) {
+            this.showNotification('Error: Title is required', 'info');
+            return;
+        }
+
+        const titleSelectors = [
+            '#summary',
+            '[name="summary"]',
+            '[data-testid="summary"]',
+            '[id*="summary"]',
+            'input[aria-label*="Summary" i]',
+            'input[aria-label*="Title" i]',
+            'input[placeholder*="summary" i]',
+            'input[placeholder*="title" i]',
+            '.summary-field input',
+            '.issue-summary',
+            '[data-field-id="summary"]',
+            'input[name*="summary" i]'
+        ];
+
+        const descriptionSelectors = [
+            '#description',
+            '[name="description"]',
+            '[data-testid="description"]',
+            '[id*="description"]',
+            'textarea[aria-label*="Description" i]',
+            '.ql-editor',
+            '[contenteditable="true"]',
+            '.description-field',
+            '.issue-description',
+            '[data-field-id="description"]',
+            'textarea[name*="description" i]',
+            '.ak-editor-content-area',
+            '[role="textbox"]'
+        ];
+
+        const labelsSelectors = [
+            '#labels',
+            '[name="labels"]',
+            '[data-testid="labels"]',
+            '[id*="labels"]',
+            'input[aria-label*="Labels" i]',
+            '.labels-field input',
+            '[data-field-id="labels"]',
+            'input[name*="labels" i]'
+        ];
+
+        const prioritySelectors = [
+            '#priority',
+            '[name="priority"]',
+            '[data-testid="priority"]',
+            '[id*="priority"]',
+            'select[aria-label*="Priority" i]',
+            '.priority-field select',
+            '[data-field-id="priority"]',
+            'select[name*="priority" i]'
+        ];
+
+        const titleField = this.findElement(titleSelectors);
+        const descriptionField = this.findElement(descriptionSelectors);
+        const labelsField = this.findElement(labelsSelectors);
+        const priorityField = this.findElement(prioritySelectors);
+
+        let filled = false;
 
         if (titleField) {
-            titleField.value = title;
-            titleField.dispatchEvent(new Event('input', { bubbles: true }));
+            if (titleField.tagName === 'INPUT' || titleField.tagName === 'TEXTAREA') {
+                titleField.value = title;
+                titleField.dispatchEvent(new Event('input', { bubbles: true }));
+                titleField.dispatchEvent(new Event('change', { bubbles: true }));
+            } else if (titleField.contentEditable === 'true') {
+                titleField.textContent = title;
+                titleField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            filled = true;
         }
 
         if (descriptionField) {
-            descriptionField.value = description;
-            descriptionField.dispatchEvent(new Event('input', { bubbles: true }));
+            if (descriptionField.tagName === 'TEXTAREA' || descriptionField.tagName === 'INPUT') {
+                descriptionField.value = description;
+                descriptionField.dispatchEvent(new Event('input', { bubbles: true }));
+                descriptionField.dispatchEvent(new Event('change', { bubbles: true }));
+            } else if (descriptionField.contentEditable === 'true' || descriptionField.classList.contains('ql-editor')) {
+                descriptionField.innerHTML = description.replace(/\n/g, '<br>');
+                descriptionField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            filled = true;
         }
 
-        if (labelsField) {
-            labelsField.value = labels;
-            labelsField.dispatchEvent(new Event('input', { bubbles: true }));
+        if (labelsField && labels) {
+            if (labelsField.tagName === 'INPUT' || labelsField.tagName === 'TEXTAREA') {
+                labelsField.value = labels;
+                labelsField.dispatchEvent(new Event('input', { bubbles: true }));
+            }
         }
 
-        this.showNotification('Data inserted into Jira form', 'success');
+        if (priorityField && priority && priorityField.tagName === 'SELECT') {
+            const option = Array.from(priorityField.options).find(opt => 
+                opt.text.toLowerCase().includes(priority.toLowerCase())
+            );
+            if (option) {
+                priorityField.value = option.value;
+                priorityField.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+
+        if (filled) {
+            this.showNotification('Task data inserted! Review and click Create.', 'success');
+        } else {
+            this.showNotification('Could not find form fields. Please open Create Issue page in Jira.', 'info');
+        }
+    }
+
+    findElement(selectors) {
+        for (const selector of selectors) {
+            try {
+                const element = document.querySelector(selector);
+                if (element && (element.offsetParent !== null || element.offsetHeight > 0 || element.offsetWidth > 0)) {
+                    return element;
+                }
+            } catch (e) {
+                continue;
+            }
+        }
+        return null;
     }
 
     showNotification(message, type = 'info') {

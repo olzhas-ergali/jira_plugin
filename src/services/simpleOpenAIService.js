@@ -125,20 +125,16 @@ class SimpleOpenAIService {
    */
   async generateTaskFromUrl(url, description = '') {
     try {
-      // Извлекаем информацию из URL
       const urlInfo = this.parseJiraUrl(url);
       
       if (!urlInfo.issueKey) {
         throw new Error('Не удалось извлечь ключ задачи из URL');
       }
 
-      // Определяем категорию на основе URL
       const category = this.determineCategoryFromUrl(url);
       
-      // Создаем описание для генерации
       const promptDescription = `${description} Задача: ${urlInfo.issueKey}`;
       
-      // Генерируем контент
       const generatedContent = await this.generateTaskContent(promptDescription, category);
       
       return {
@@ -162,11 +158,9 @@ class SimpleOpenAIService {
     try {
       const urlObj = new URL(url);
       
-      // Извлекаем issue key из URL
       const issueKeyMatch = url.match(/([A-Z]+-\d+)/);
       const issueKey = issueKeyMatch ? issueKeyMatch[1] : null;
       
-      // Извлекаем project key
       const projectKeyMatch = url.match(/projectKey=([A-Z]+)/);
       const projectKey = projectKeyMatch ? projectKeyMatch[1] : null;
       
@@ -228,7 +222,6 @@ class SimpleOpenAIService {
           variant: i + 1
         });
         
-        // Небольшая задержка между запросами
         if (i < count - 1) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }

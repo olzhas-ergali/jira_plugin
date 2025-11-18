@@ -256,7 +256,6 @@
     </div>
 
     <script>
-        // DOM элементы
         const form = document.getElementById('automationForm');
         const actionSelect = document.getElementById('action');
         const issueKeyGroup = document.getElementById('issueKeyGroup');
@@ -267,16 +266,13 @@
         const submitText = document.getElementById('submitText');
         const resetBtn = document.getElementById('resetBtn');
 
-        // Обработка изменения действия
         actionSelect.addEventListener('change', function() {
             const action = this.value;
             
-            // Скрываем все группы
             issueKeyGroup.style.display = 'none';
             templateGroup.style.display = 'none';
             descriptionGroup.style.display = 'none';
             
-            // Показываем нужные группы
             if (action === 'enhance' || action === 'clone-task') {
                 issueKeyGroup.style.display = 'block';
             }
@@ -287,14 +283,12 @@
             }
         });
 
-        // Обработка отправки формы
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
             
-            // Валидация
             if (!data.action) {
                 showStatus('Выберите действие', 'error');
                 return;
@@ -315,7 +309,6 @@
                 return;
             }
             
-            // Отправка запроса
             try {
                 setLoading(true);
                 showStatus('Выполняется...', 'loading');
@@ -342,7 +335,6 @@
             }
         });
 
-        // Сброс формы
         resetBtn.addEventListener('click', function() {
             form.reset();
             issueKeyGroup.style.display = 'none';
@@ -351,7 +343,6 @@
             hideStatus();
         });
 
-        // Функции для работы с UI
         function showStatus(message, type) {
             status.textContent = message;
             status.className = `status ${type}`;

@@ -82,13 +82,11 @@ class HistoricalController {
       const { projectKey, maxResults } = value;
       console.log(`🔍 Анализ паттернов для проекта ${projectKey}...`);
 
-      // Получаем исторические задачи
       const result = await historicalDataService.parseHistoricalTasks({
         projectKey,
         maxResults
       });
 
-      // Анализируем паттерны
       const patterns = historicalDataService.analyzePatterns(result.issues);
       const templates = historicalDataService.createTemplatesFromHistory(result.issues);
 
@@ -157,23 +155,19 @@ class HistoricalController {
       let historicalContext = '';
       
       if (useHistoricalData) {
-        // Получаем исторические задачи для контекста
         const historicalResult = await historicalDataService.parseHistoricalTasks({
           projectKey,
           maxResults: maxHistoricalTasks
         });
 
-        // Фильтруем задачи по категории
         const categoryTasks = historicalResult.issues.filter(task => task.category === category);
         
         if (categoryTasks.length > 0) {
-          // Создаем контекст из исторических задач
           historicalContext = this.buildHistoricalContext(categoryTasks);
           console.log(`📚 Используем ${categoryTasks.length} исторических задач как контекст`);
         }
       }
 
-      // Генерируем задачу с учетом исторических данных
       const enhancedDescription = historicalContext 
         ? `${description}\n\nКонтекст из исторических задач:\n${historicalContext}`
         : description;
@@ -252,7 +246,6 @@ class HistoricalController {
   generateRecommendations(patterns, templates) {
     const recommendations = [];
 
-    // Рекомендации по категориям
     const topCategories = Object.entries(patterns.categories)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 3);
@@ -265,7 +258,6 @@ class HistoricalController {
       });
     }
 
-    // Рекомендации по приоритетам
     const topPriorities = Object.entries(patterns.priorities)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 2);
@@ -278,7 +270,6 @@ class HistoricalController {
       });
     }
 
-    // Рекомендации по лейблам
     const topLabels = Object.entries(patterns.labels)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 5);
@@ -291,7 +282,6 @@ class HistoricalController {
       });
     }
 
-    // Рекомендации по качеству
     const qualityStats = patterns.quality;
     const totalTasks = qualityStats.high + qualityStats.medium + qualityStats.low;
     const qualityPercentage = Math.round((qualityStats.high / totalTasks) * 100);

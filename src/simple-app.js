@@ -9,7 +9,6 @@ const requestLogger = require('./middleware/requestLogger');
 
 const app = express();
 
-// Базовые middleware
 app.use(helmet()); // Безопасность
 app.use(cors()); // CORS
 app.use(express.json({ limit: '10mb' })); // Парсинг JSON
@@ -17,7 +16,6 @@ app.use(express.urlencoded({ extended: true })); // Парсинг URL-encoded
 app.use(express.static('public'));
 app.use(requestLogger); 
 
-// Главная страница
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -45,11 +43,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// API роуты
 app.use('/api/simple', simpleRoutes);
 app.use('/api/historical', historicalRoutes);
 
-// Обработка 404
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -58,10 +54,8 @@ app.use('*', (req, res) => {
   });
 });
 
-// Обработка ошибок (должен быть последним middleware)
 app.use(errorHandler);
 
-// Запуск сервера
 const PORT = config.server.port;
 app.listen(PORT, () => {
   console.log('🚀 Jira OpenAI Automation - Simple Mode запущен!');
@@ -74,7 +68,6 @@ app.listen(PORT, () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
 
-// Обработка необработанных исключений
 process.on('uncaughtException', (error) => {
   console.error('❌ Uncaught Exception:', error);
   process.exit(1);

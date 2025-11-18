@@ -6,11 +6,15 @@
   "permissions": [
     "activeTab",
     "storage",
-    "scripting"
+    "scripting",
+    "tabs",
+    "contextMenus"
   ],
   "host_permissions": [
     "https://*.atlassian.net/*",
+    "https://*.atlassian.com/*",
     "https://*.jira.com/*",
+    "http://*.jira.com/*",
     "https://api.openai.com/*"
   ],
   "background": {
@@ -20,14 +24,24 @@
     {
       "matches": [
         "https://*.atlassian.net/*",
-        "https://*.jira.com/*"
+        "https://*.atlassian.com/*",
+        "https://*.jira.com/*",
+        "http://*.jira.com/*",
+        "file:///*test-page.html"
       ],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": "document_end",
+      "all_frames": false
     }
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Jira Task Generator"
+    "default_title": "Jira Task Generator",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "icons": {
     "16": "icons/icon16.png",

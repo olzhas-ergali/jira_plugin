@@ -5,7 +5,6 @@ const config = require('../config/config');
 
 const router = express.Router();
 
-// Настройка rate limiting
 const generateLimiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: 20, // Максимум 20 запросов генерации в окне
@@ -18,7 +17,6 @@ const generateLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// Роуты для простой генерации
 router.post('/generate', generateLimiter, simpleController.generateTask.bind(simpleController));
 router.post('/generate-from-url', generateLimiter, simpleController.generateFromUrl.bind(simpleController));
 router.post('/generate-variants', generateLimiter, simpleController.generateVariants.bind(simpleController));

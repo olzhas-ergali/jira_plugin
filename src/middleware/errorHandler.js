@@ -1,14 +1,6 @@
-/**
- * Middleware для обработки ошибок
- * @param {Error} err - Ошибка
- * @param {Object} req - Запрос
- * @param {Object} res - Ответ
- * @param {Function} next - Следующий middleware
- */
 const errorHandler = (err, req, res, next) => {
   console.error('❌ Unhandled error:', err);
 
-  // Ошибки валидации Joi
   if (err.isJoi) {
     return res.status(400).json({
       success: false,
@@ -17,7 +9,6 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Ошибки axios (внешние API)
   if (err.response) {
     const status = err.response.status;
     const message = err.response.data?.message || err.message;
@@ -30,7 +21,6 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Ошибки подключения
   if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
     return res.status(503).json({
       success: false,
@@ -39,7 +29,6 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
-  // Общие ошибки
   res.status(500).json({
     success: false,
     error: 'Внутренняя ошибка сервера',

@@ -4,17 +4,14 @@ import { OpenAIService } from './services/openaiService';
 import { TaskService } from './services/taskService';
 import { TemplateService } from './services/templateService';
 
-// Инициализация сервисов
 const openaiService = new OpenAIService();
 const taskService = new TaskService();
 const templateService = new TemplateService();
 
-// Главная функция плагина
 export const run = async (event, context) => {
   console.log('Jira OpenAI Automation Plugin started');
   
   try {
-    // Обработка различных типов событий
     switch (event.type) {
       case 'jira:issue_created':
         await handleIssueCreated(event, context);
@@ -30,51 +27,40 @@ export const run = async (event, context) => {
   }
 };
 
-// Обработка создания задачи
 async function handleIssueCreated(event, context) {
   const issue = event.issue;
   console.log('New issue created:', issue.key);
   
-  // Проверяем, нужно ли автоматически улучшить задачу
   if (shouldEnhanceIssue(issue)) {
     await enhanceIssueWithAI(issue, context);
   }
 }
 
-// Обработка обновления задачи
 async function handleIssueUpdated(event, context) {
   const issue = event.issue;
   console.log('Issue updated:', issue.key);
   
-  // Логика для обновленных задач
 }
 
-// Проверка, нужно ли улучшить задачу
 function shouldEnhanceIssue(issue) {
-  // Проверяем наличие специальных лейблов или полей
   const labels = issue.fields.labels || [];
   return labels.includes('ai-enhance') || labels.includes('auto-generate');
 }
 
-// Улучшение задачи с помощью AI
 async function enhanceIssueWithAI(issue, context) {
   try {
     console.log('Enhancing issue with AI:', issue.key);
     
-    // Получаем информацию о задаче
     const issueDetails = await taskService.getIssueDetails(issue.key);
     
-    // Определяем категорию
     const category = determineCategory(issueDetails);
     
-    // Генерируем улучшенное описание
     const enhancedContent = await openaiService.generateTaskContent(
       issueDetails.summary,
       category,
       await templateService.getTemplate(category)
     );
     
-    // Обновляем задачу
     await taskService.updateIssue(issue.key, {
       summary: enhancedContent.title,
       description: enhancedContent.description,
@@ -87,7 +73,6 @@ async function enhanceIssueWithAI(issue, context) {
   }
 }
 
-// Определение категории задачи
 function determineCategory(issueDetails) {
   const summary = issueDetails.summary.toLowerCase();
   const labels = (issueDetails.labels || []).map(label => label.toLowerCase());
@@ -101,7 +86,6 @@ function determineCategory(issueDetails) {
   return 'Backend'; // По умолчанию
 }
 
-// API роуты для плагина
 export const router = route({
   path: '/api/automation',
   method: 'POST',
@@ -131,7 +115,6 @@ export const router = route({
   }
 });
 
-// Улучшение существующей задачи
 async function enhanceIssue(issueKey, options) {
   const issueDetails = await taskService.getIssueDetails(issueKey);
   const category = determineCategory(issueDetails);
@@ -149,7 +132,6 @@ async function enhanceIssue(issueKey, options) {
   });
 }
 
-// Создание задачи из шаблона
 async function createFromTemplate(issueKey, options) {
   const { template, category } = options;
   
@@ -170,7 +152,6 @@ async function createFromTemplate(issueKey, options) {
   });
 }
 
-// Клонирование задачи
 async function cloneTask(issueKey, options) {
   const sourceIssue = await taskService.getIssueDetails(issueKey);
   const category = determineCategory(sourceIssue);

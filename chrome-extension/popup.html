@@ -22,14 +22,17 @@
         <!-- Генерация задач -->
         <div id="generate" class="tab-content active">
             <div class="form-group">
-                <label for="description">Task description:</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <label for="description">Task description:</label>
+                    <button id="clearFormBtn" class="btn-clear" title="Clear form">Clear</button>
+                </div>
                 <textarea id="description" placeholder="Describe what needs to be done..." rows="3"></textarea>
             </div>
 
-            <div class="form-group">
-                <label for="category">Category:</label>
+            <div class="form-group" style="display: none;">
+                <label for="category">Category (optional):</label>
                 <select id="category">
-                    <option value="">Select category</option>
+                    <option value="">Auto-detect</option>
                     <option value="Backend">Backend</option>
                     <option value="Frontend">Frontend</option>
                     <option value="DevOps">DevOps</option>
@@ -39,35 +42,46 @@
             </div>
 
             <button id="generateBtn" class="btn primary">
-                <span class="btn-text">Generate Task</span>
-                <span class="loading" style="display: none;">Loading...</span>
+                <span class="btn-text">Generate Task Preview</span>
+                <span class="loading" style="display: none;">Generating...</span>
             </button>
 
-            <div id="result" class="result" style="display: none;">
-                <h3>Result:</h3>
-                <div class="result-content">
-                    <div class="field">
+            <div id="preview" class="preview-container" style="display: none;">
+                <div class="preview-header">
+                    <h3>Task Preview</h3>
+                    <button id="editToggle" class="btn-icon" title="Edit">Edit</button>
+                </div>
+                
+                <div class="preview-content">
+                    <div class="preview-field">
                         <label>Title:</label>
-                        <div class="copy-field">
-                            <input type="text" id="title" readonly>
-                            <button class="copy-btn" data-copy="title">Copy</button>
-                        </div>
+                        <input type="text" id="preview-title" class="preview-input" readonly>
                     </div>
-                    <div class="field">
+                    
+                    <div class="preview-field">
                         <label>Description:</label>
-                        <div class="copy-field">
-                            <textarea id="description-result" readonly rows="4"></textarea>
-                            <button class="copy-btn" data-copy="description-result">Copy</button>
-                        </div>
+                        <textarea id="preview-description" class="preview-textarea" readonly rows="6"></textarea>
                     </div>
-                    <div class="field">
-                        <label>Labels:</label>
-                        <div class="copy-field">
-                            <input type="text" id="labels" readonly>
-                            <button class="copy-btn" data-copy="labels">Copy</button>
+                    
+                    <div class="preview-field-row">
+                        <div class="preview-field">
+                            <label>Labels:</label>
+                            <input type="text" id="preview-labels" class="preview-input" readonly>
+                        </div>
+                        <div class="preview-field">
+                            <label>Priority:</label>
+                            <input type="text" id="preview-priority" class="preview-input" readonly>
                         </div>
                     </div>
                 </div>
+
+                <div class="preview-actions">
+                    <button id="regenerateBtn" class="btn secondary">Regenerate</button>
+                    <button id="copyAllBtn" class="btn secondary">Copy All</button>
+                    <button id="createInJiraBtn" class="btn primary">Create in Jira</button>
+                </div>
+
+                <div id="createStatus" class="create-status" style="display: none;"></div>
             </div>
         </div>
 
@@ -150,7 +164,6 @@
             </div>
         </div>
 
-        <!-- Настройки -->
         <div id="settings" class="tab-content">
             <div class="form-group">
                 <label for="openaiKey">OpenAI API Key:</label>
@@ -158,17 +171,13 @@
                 <small>Get your key at platform.openai.com</small>
             </div>
 
-            <div class="form-group">
-                <label for="jiraUrl">Jira URL:</label>
-                <input type="text" id="jiraUrl" placeholder="https://your-jira.atlassian.net">
-            </div>
-
             <button id="saveSettings" class="btn primary">Save Settings</button>
             
-            <div class="status" id="settingsStatus" style="display: none;"></div>
+            <div id="settingsStatus" class="status" style="display: none; margin-top: 15px; padding: 10px; border-radius: 5px;"></div>
         </div>
     </div>
 
     <script src="popup.js"></script>
 </body>
 </html>
+

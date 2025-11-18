@@ -37,7 +37,6 @@ class HistoricalDataService {
 
       console.log(`📊 Парсинг исторических задач из проекта ${projectKey}...`);
 
-      // Строим JQL запрос
       let jqlQuery = `project = ${projectKey}`;
       if (jql) {
         jqlQuery = jql;
@@ -55,7 +54,6 @@ class HistoricalDataService {
       const issues = response.data.issues;
       console.log(`✅ Найдено ${issues.length} исторических задач`);
 
-      // Обрабатываем каждую задачу
       const historicalTasks = issues.map(issue => this.processHistoricalTask(issue));
       
       return {
@@ -89,9 +87,7 @@ class HistoricalDataService {
       updated: issue.fields.updated,
       resolved: issue.fields.resolutiondate,
       url: `${this.baseUrl}/browse/${issue.key}`,
-      // Извлекаем категорию
       category: this.determineCategoryFromTask(issue),
-      // Анализируем качество задачи
       quality: this.analyzeTaskQuality(issue)
     };
   }
@@ -107,7 +103,6 @@ class HistoricalDataService {
     const labels = (issue.fields.labels || []).map(label => label.toLowerCase());
     const issueType = issue.fields.issuetype.name.toLowerCase();
     
-    // Проверяем ключевые слова в названии и описании
     const text = `${summary} ${description}`.toLowerCase();
     
     if (text.includes('devops') || text.includes('ci/cd') || text.includes('deploy') || text.includes('monitoring')) {
@@ -126,7 +121,6 @@ class HistoricalDataService {
       return 'Инфраструктура';
     }
     
-    // Проверяем лейблы
     if (labels.some(label => ['devops', 'ci-cd', 'deployment', 'monitoring'].includes(label))) {
       return 'DevOps';
     }
@@ -143,7 +137,6 @@ class HistoricalDataService {
       return 'Инфраструктура';
     }
     
-    // По умолчанию
     return 'Backend';
   }
 
@@ -231,14 +224,12 @@ class HistoricalDataService {
     const description = issue.fields.description || '';
     const labels = issue.fields.labels || [];
     
-    // Базовые баллы
     if (description.length > 0) score += 20;
     if (description.length > 100) score += 10;
     if (description.length > 500) score += 10;
     if (labels.length > 0) score += 10;
     if (labels.length > 2) score += 10;
     
-    // Структурированность
     if (this.isWellStructured(description)) score += 15;
     if (this.hasAcceptanceCriteria(description)) score += 15;
     if (this.hasTechnicalDetails(description)) score += 10;
@@ -265,23 +256,18 @@ class HistoricalDataService {
     };
 
     historicalTasks.forEach(task => {
-      // Категории
       patterns.categories[task.category] = (patterns.categories[task.category] || 0) + 1;
       
-      // Приоритеты
       patterns.priorities[task.priority] = (patterns.priorities[task.priority] || 0) + 1;
       
-      // Лейблы
       task.labels.forEach(label => {
         patterns.labels[label] = (patterns.labels[label] || 0) + 1;
       });
       
-      // Исполнители
       if (task.assignee !== 'Не назначен') {
         patterns.assignees[task.assignee] = (patterns.assignees[task.assignee] || 0) + 1;
       }
       
-      // Качество
       if (task.quality.qualityScore >= 80) {
         patterns.quality.high.push(task);
       } else if (task.quality.qualityScore >= 60) {
@@ -303,7 +289,6 @@ class HistoricalDataService {
     const patterns = this.analyzePatterns(historicalTasks);
     const templates = {};
 
-    // Создаем шаблоны для каждой категории
     Object.keys(patterns.categories).forEach(category => {
       const categoryTasks = historicalTasks.filter(task => task.category === category);
       const highQualityTasks = categoryTasks.filter(task => task.quality.qualityScore >= 80);
@@ -323,12 +308,10 @@ class HistoricalDataService {
    * @returns {Object} Шаблон
    */
   createTemplateFromTasks(category, tasks) {
-    // Анализируем общие паттерны
     const commonLabels = this.getCommonLabels(tasks);
     const commonPriority = this.getCommonPriority(tasks);
     const commonAssignee = this.getCommonAssignee(tasks);
     
-    // Создаем шаблон описания
     const descriptionTemplate = this.createDescriptionTemplate(tasks);
     
     return {
@@ -359,7 +342,6 @@ class HistoricalDataService {
       });
     });
     
-    // Возвращаем лейблы, которые встречаются в более чем 50% задач
     const threshold = tasks.length * 0.5;
     return Object.keys(labelCounts)
       .filter(label => labelCounts[label] >= threshold)
@@ -408,7 +390,6 @@ class HistoricalDataService {
    * @returns {string} Шаблон описания
    */
   createDescriptionTemplate(tasks) {
-    // Анализируем структуру описаний
     const structures = tasks.map(task => this.extractDescriptionStructure(task.description));
     const commonStructure = this.findCommonStructure(structures);
     

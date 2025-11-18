@@ -1,21 +1,24 @@
 class JiraOpenAIBackground {
     constructor() {
+        this.contextMenuSetupInProgress = false;
         this.init();
     }
 
     init() {
-        chrome.runtime.onInstalled.addListener((details) => {
+        chrome.runtime.onInstalled.addListener(async (details) => {
             if (details.reason === 'install') {
                 this.handleInstall();
             }
+            await this.setupContextMenu();
         });
 
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-            this.handleMessage(request, sender, sendResponse);
-            return true;
+            const result = this.handleMessage(request, sender, sendResponse);
+            return result !== undefined ? result : true;
         });
 
         this.setupContextMenu();
+        this.setupContextMenuClickHandler();
     }
 
     handleInstall() {
@@ -23,48 +26,48 @@ class JiraOpenAIBackground {
         
         chrome.storage.sync.set({
             openaiKey: '',
-            jiraUrl: '',
             version: '1.0.0'
-        });
-
-        chrome.tabs.create({
-            url: chrome.runtime.getURL('welcome.html')
         });
     }
 
     async handleMessage(request, sender, sendResponse) {
+        console.log('Background received message:', request.action);
+        
         try {
             switch (request.action) {
                 case 'openPopup':
                     await this.openPopup();
                     sendResponse({ success: true });
-                    break;
+                    return true;
 
                 case 'analyzePage':
                     const analysis = await this.analyzeCurrentPage();
                     sendResponse(analysis);
-                    break;
+                    return true;
 
                 case 'generateTask':
                     const result = await this.generateTask(request.data);
                     sendResponse(result);
-                    break;
+                    return true;
 
                 case 'getSettings':
                     const settings = await this.getSettings();
                     sendResponse(settings);
-                    break;
+                    return true;
 
                 case 'saveSettings':
                     await this.saveSettings(request.data);
                     sendResponse({ success: true });
-                    break;
+                    return true;
 
                 default:
                     sendResponse({ error: 'Unknown action' });
+                    return false;
             }
         } catch (error) {
+            console.error('Background message error:', error);
             sendResponse({ error: error.message });
+            return false;
         }
     }
 
@@ -75,7 +78,7 @@ class JiraOpenAIBackground {
     async analyzeCurrentPage() {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         
-        if (!tab.url.includes('atlassian.net') && !tab.url.includes('jira.com')) {
+        if (!this.isJiraUrl(tab.url)) {
             throw new Error('Not a Jira page');
         }
 
@@ -180,35 +183,84 @@ PRIORITY: [priority]`;
         return result;
     }
 
+    isJiraUrl(url) {
+        if (!url) return false;
+        const jiraPatterns = [
+            /atlassian\.net/i,
+            /atlassian\.com/i,
+            /jira\.com/i,
+            /\/jira\//i
+        ];
+        return jiraPatterns.some(pattern => pattern.test(url));
+    }
+
     async getSettings() {
-        return await chrome.storage.sync.get(['openaiKey', 'jiraUrl']);
+        return await chrome.storage.sync.get(['openaiKey']);
     }
 
     async saveSettings(data) {
         await chrome.storage.sync.set(data);
     }
 
-    setupContextMenu() {
-        chrome.contextMenus.create({
-            id: 'jira-openai-generate',
-            title: 'Generate task with AI',
-            contexts: ['page'],
-            documentUrlPatterns: [
-                'https://*.atlassian.net/*',
-                'https://*.jira.com/*'
-            ]
-        });
+    async setupContextMenu() {
+        if (this.contextMenuSetupInProgress) {
+            return;
+        }
+        
+        this.contextMenuSetupInProgress = true;
+        
+        try {
+            await new Promise((resolve) => {
+                chrome.contextMenus.removeAll(() => {
+                    resolve();
+                });
+            });
 
-        chrome.contextMenus.create({
-            id: 'jira-openai-analyze',
-            title: 'Analyze page',
-            contexts: ['page'],
-            documentUrlPatterns: [
-                'https://*.atlassian.net/*',
-                'https://*.jira.com/*'
-            ]
-        });
+            chrome.contextMenus.create({
+                id: 'jira-openai-generate',
+                title: 'Generate task with AI',
+                contexts: ['page'],
+                documentUrlPatterns: [
+                    'https://*.atlassian.net/*',
+                    'https://*.atlassian.com/*',
+                    'https://*.jira.com/*',
+                    'http://*.jira.com/*'
+                ]
+            }, () => {
+                const error = chrome.runtime.lastError;
+                if (error && !error.message.includes('duplicate') && !error.message.includes('Cannot create item')) {
+                    console.error('Error creating menu:', error.message);
+                }
+            });
 
+            chrome.contextMenus.create({
+                id: 'jira-openai-analyze',
+                title: 'Analyze page',
+                contexts: ['page'],
+                documentUrlPatterns: [
+                    'https://*.atlassian.net/*',
+                    'https://*.atlassian.com/*',
+                    'https://*.jira.com/*',
+                    'http://*.jira.com/*'
+                ]
+            }, () => {
+                const error = chrome.runtime.lastError;
+                if (error && !error.message.includes('duplicate') && !error.message.includes('Cannot create item')) {
+                    console.error('Error creating menu:', error.message);
+                }
+            });
+        } catch (error) {
+            console.error('Error setting up context menu:', error);
+        } finally {
+            this.contextMenuSetupInProgress = false;
+        }
+    }
+
+    setupContextMenuClickHandler() {
+        if (this.contextMenuHandlerSetup) {
+            return;
+        }
+        
         chrome.contextMenus.onClicked.addListener((info, tab) => {
             if (info.menuItemId === 'jira-openai-generate') {
                 this.openPopup();
@@ -216,6 +268,8 @@ PRIORITY: [priority]`;
                 this.analyzeCurrentPage();
             }
         });
+        
+        this.contextMenuHandlerSetup = true;
     }
 }
 

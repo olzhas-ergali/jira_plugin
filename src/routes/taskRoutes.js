@@ -5,7 +5,6 @@ const config = require('../config/config');
 
 const router = express.Router();
 
-// Настройка rate limiting
 const createTaskLimiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: 10, // Максимум 10 запросов на создание задач в окне
@@ -18,7 +17,6 @@ const createTaskLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// Роуты для задач
 router.post('/create-task', createTaskLimiter, taskController.createTask.bind(taskController));
 router.get('/categories', taskController.getCategories.bind(taskController));
 router.get('/health', taskController.healthCheck.bind(taskController));

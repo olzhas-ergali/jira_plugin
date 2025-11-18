@@ -9,7 +9,6 @@ class JiraService {
     this.projectKey = config.jira.projectKey;
     this.issueType = config.jira.issueType;
     
-    // Создаем базовую конфигурацию для axios
     this.api = axios.create({
       baseURL: `${this.baseUrl}/rest/api/3`,
       auth: {
@@ -51,7 +50,6 @@ class JiraService {
         }
       };
 
-      // Добавляем исполнителя если указан
       if (taskData.assignee) {
         issueData.fields.assignee = {
           accountId: await this.getAccountIdByEmail(taskData.assignee)
@@ -159,7 +157,6 @@ class JiraService {
           trimmedLine.startsWith('🛠️') || trimmedLine.startsWith('🎨') ||
           trimmedLine.startsWith('📊')) {
         
-        // Завершаем предыдущий параграф или список
         if (currentParagraph.length > 0) {
           content.push({
             type: 'paragraph',
@@ -172,7 +169,6 @@ class JiraService {
           currentList = null;
         }
 
-        // Создаем заголовок
         const headerText = trimmedLine.substring(2).trim();
         content.push({
           type: 'heading',
@@ -183,7 +179,6 @@ class JiraService {
           }]
         });
       } else if (trimmedLine.startsWith('- ')) {
-        // Элемент списка
         if (!currentList) {
           currentList = {
             type: 'bulletList',
@@ -203,14 +198,12 @@ class JiraService {
           }]
         });
       } else {
-        // Обычный текст
         if (currentList) {
           content.push(currentList);
           currentList = null;
         }
         
         if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
-          // Жирный текст
           const boldText = trimmedLine.substring(2, trimmedLine.length - 2);
           currentParagraph.push({
             type: 'text',
@@ -226,7 +219,6 @@ class JiraService {
       }
     }
 
-    // Завершаем последний параграф или список
     if (currentParagraph.length > 0) {
       content.push({
         type: 'paragraph',

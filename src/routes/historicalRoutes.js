@@ -5,7 +5,6 @@ const config = require('../config/config');
 
 const router = express.Router();
 
-// Настройка rate limiting для исторических данных
 const historicalLimiter = rateLimit({
   windowMs: config.rateLimit.windowMs,
   max: 5, // Максимум 5 запросов парсинга в окне
@@ -18,7 +17,6 @@ const historicalLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// Роуты для работы с историческими данными
 router.post('/parse', historicalLimiter, historicalController.parseHistoricalTasks.bind(historicalController));
 router.post('/analyze-patterns', historicalLimiter, historicalController.analyzePatterns.bind(historicalController));
 router.post('/create-from-history', historicalController.createTaskFromHistory.bind(historicalController));

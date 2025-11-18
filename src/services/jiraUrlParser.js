@@ -29,15 +29,12 @@ class JiraUrlParser {
     try {
       const urlObj = new URL(url);
       
-      // Извлекаем issue key из URL
       const issueKeyMatch = url.match(/([A-Z]+-\d+)/);
       const issueKey = issueKeyMatch ? issueKeyMatch[1] : null;
       
-      // Извлекаем project key
       const projectKeyMatch = url.match(/projectKey=([A-Z]+)/);
       const projectKey = projectKeyMatch ? projectKeyMatch[1] : null;
       
-      // Извлекаем rapid view ID
       const rapidViewMatch = url.match(/rapidView=(\d+)/);
       const rapidViewId = rapidViewMatch ? rapidViewMatch[1] : null;
       
@@ -159,7 +156,6 @@ class JiraUrlParser {
         rapidViewInfo: null
       };
 
-      // Получаем информацию о задаче, если есть issue key
       if (parsed.issueKey) {
         try {
           result.issueInfo = await this.getIssueInfo(parsed.issueKey);
@@ -168,7 +164,6 @@ class JiraUrlParser {
         }
       }
 
-      // Получаем информацию о проекте
       if (parsed.projectKey) {
         try {
           result.projectInfo = await this.getProjectInfo(parsed.projectKey);
@@ -177,7 +172,6 @@ class JiraUrlParser {
         }
       }
 
-      // Получаем информацию о Rapid View
       if (parsed.rapidViewId) {
         try {
           result.rapidViewInfo = await this.getRapidViewInfo(parsed.rapidViewId);
@@ -209,10 +203,8 @@ class JiraUrlParser {
 
       const sourceIssue = analysis.issueInfo;
       
-      // Определяем категорию на основе типа задачи или лейблов
       const category = this.determineCategory(sourceIssue);
       
-      // Создаем описание для новой задачи
       const description = this.createDescriptionFromIssue(sourceIssue, options);
       
       return {
@@ -240,7 +232,6 @@ class JiraUrlParser {
     const labels = issueInfo.labels.map(label => label.toLowerCase());
     const issueType = issueInfo.issueType.toLowerCase();
     
-    // Проверяем ключевые слова в названии
     if (summary.includes('devops') || summary.includes('ci/cd') || summary.includes('deploy')) {
       return 'DevOps';
     }
@@ -257,7 +248,6 @@ class JiraUrlParser {
       return 'Инфраструктура';
     }
     
-    // Проверяем лейблы
     if (labels.some(label => ['devops', 'ci-cd', 'deployment'].includes(label))) {
       return 'DevOps';
     }
@@ -274,7 +264,6 @@ class JiraUrlParser {
       return 'Инфраструктура';
     }
     
-    // По умолчанию
     return 'Backend';
   }
 
